@@ -2,6 +2,8 @@ import { HomeContainer, Product } from "./styles/pages/home"
 
 import Image from 'next/image'
 
+import Head from 'next/head'
+
 import { useKeenSlider } from 'keen-slider/react'
 import 'keen-slider/keen-slider.min.css'
 import { stripe } from "./lib/stripe"
@@ -18,7 +20,7 @@ interface HomeProps {
   }[]
 }
 
-export default function Home({products} : HomeProps) {
+export default function Home({ products }: HomeProps) {
 
   const [sliderRef] = useKeenSlider({
     slides: {
@@ -28,22 +30,30 @@ export default function Home({products} : HomeProps) {
   })
 
   return (
-    <HomeContainer ref={sliderRef} className="keen-slider">
-      {products.map((product) => {
-        return (
-          <Link href={`/product/${product.id}`} key={product.id} prefetch={false}>
-            <Product key={product.id} className="keen-slider__slide">
-              <Image src={product.ImageUrl} alt="" width={520} height={480} />
+    <>
 
-              <footer>
-                <strong>{product.name}</strong>
-                <span>{product.price}</span>
-              </footer>
-            </Product>
-          </Link>
-        )
-      })}
-    </HomeContainer>
+      <Head>
+        <title>Home | Ignite Shop</title>
+      </Head>
+
+      <HomeContainer ref={sliderRef} className="keen-slider">
+
+        {products.map((product) => {
+          return (
+            <Link href={`/product/${product.id}`} key={product.id} prefetch={false}>
+              <Product key={product.id} className="keen-slider__slide">
+                <Image src={product.ImageUrl} alt="" width={520} height={480} />
+
+                <footer>
+                  <strong>{product.name}</strong>
+                  <span>{product.price}</span>
+                </footer>
+              </Product>
+            </Link>
+          )
+        })}
+      </HomeContainer>
+    </>
   )
 }
 
@@ -58,7 +68,7 @@ const formatPrice = (unitAmount: number | null): string => {
   return "Valor indisponível";
 };
 
-export const getStaticProps : GetStaticProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const response = await stripe.products.list({
     expand: ['data.default_price']
   })
@@ -73,7 +83,7 @@ export const getStaticProps : GetStaticProps = async () => {
       name: product.name,
       ImageUrl: product.images[0],
       price: formattedPrice,
-    }  
+    }
   })
 
   return {
